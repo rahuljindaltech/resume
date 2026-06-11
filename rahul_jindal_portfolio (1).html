@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahul Jindal - 0-to-1 AI, Full Stack & Platform Architect</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#030712', /* Deep black-gray */
+                            card: '#0f172a', /* Sleek slate-card */
+                            accent: '#10B981', /* Emerald */
+                            purple: '#8B5CF6', /* Purple */
+                            blue: '#3B82F6',
+                            glow: '#00F2FE'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Three.js Library for Immersive 3D Background Node Graph -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        /* Glassmorphism utility card */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10B981;
+        }
+        /* Custom Glowing Accents */
+        .text-glow-emerald {
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+        .glow-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+        /* Canvas positioning for full-screen threejs */
+        #globalThreeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -10;
+            pointer-events: all; /* Allows drag rotation interactions over blank areas */
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Interactive Background Node Constellation Graph Canvas -->
+    <canvas id="globalThreeCanvas"></canvas>
+
+    <!-- Global Top Navigation Bar -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-cyber-dark/75 border-b border-gray-800/60 px-4 py-4 sm:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Branding -->
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-purple-600 flex items-center justify-center font-bold text-white text-xl shadow-lg">
+                        RJ
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-cyber-dark rounded-full animate-ping"></div>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl text-white tracking-wide">Rahul Jindal</h1>
+                    <p class="text-xs text-emerald-400 font-mono font-semibold">0-to-1 AI, Full Stack & Platform Architect</p>
+                </div>
+            </div>
+
+            <!-- Fast Communication Actions -->
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="mailto:rahuljindal121@gmail.com" class="bg-gray-900/95 hover:bg-emerald-950/40 px-3 py-2 rounded-xl text-xs font-mono transition text-gray-300 hover:text-emerald-400 border border-gray-800 hover:border-emerald-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-envelope"></i> rahuljindal121@gmail.com
+                </a>
+                <a href="tel:+919212696418" class="bg-gray-900/95 hover:bg-emerald-950/40 px-3 py-2 rounded-xl text-xs font-mono transition text-gray-300 hover:text-emerald-400 border border-gray-800 hover:border-emerald-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-phone"></i> +91 9212696418
+                </a>
+                <button onclick="copyContact()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-xs text-white font-semibold transition shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-copy"></i> Copy Contact
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+        <span id="toastIcon"><i class="fa-solid fa-circle-check"></i></span>
+        <span id="toastMessage" class="text-sm font-medium">Text copied to clipboard!</span>
+    </div>
+
+    <!-- MAIN SCROLLABLE WRAPPER -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-16 relative z-10">
+        
+        <!-- Interactive Hero & Abstract Segment -->
+        <section class="glass-card p-6 sm:p-12 rounded-3xl relative overflow-hidden shadow-2xl transition duration-300 hover:border-emerald-500/10">
+            <div class="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
+            <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl -z-10"></div>
+            
+            <div class="space-y-6 max-w-4xl">
+                <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-semibold border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Specialized in Zero-to-One Product Engineering
+                </span>
+                <h2 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-none">
+                    Rahul <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-purple-500 text-glow-emerald">Jindal</span>
+                </h2>
+                <h3 class="text-xl sm:text-3xl font-extrabold text-gray-300 font-mono">
+                    Senior Staff Engineer, Full Stack Developer & Platform Architect
+                </h3>
+                <p class="text-gray-300 text-base sm:text-lg leading-relaxed">
+                    Experienced architect with <strong class="text-emerald-400 font-semibold">over 9 years</strong> of expertise designing robust full-stack platform systems, high-scale services, and intelligent agentic AI layers. Proven specialist in driving zero-to-one product engineering, managing platforms scaling up to <strong class="text-emerald-400 font-semibold">4 Million Daily Active Users (DAU)</strong>, reducing platform latency and crash metrics by 50%+, and building complex telemetry, score-modeling, and analytical risk-profiling engines.
+                </p>
+                
+                <!-- Micro-Metrics Highlights Dashboard -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+                    <div class="bg-gray-950/70 border border-gray-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-emerald-400">9+ Yrs</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase tracking-widest block mt-1">Experience</span>
+                    </div>
+                    <div class="bg-gray-950/70 border border-gray-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-purple-400">4M+ DAU</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase tracking-widest block mt-1">PW Scale Handled</span>
+                    </div>
+                    <div class="bg-gray-950/70 border border-gray-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-blue-400">2000+</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase tracking-widest block mt-1">Peak QPS Scale</span>
+                    </div>
+                    <div class="bg-gray-950/70 border border-gray-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-teal-400">200K+</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase tracking-widest block mt-1">GyannE Users</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Zero-to-One Product Deliveries -->
+        <section class="space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-cubes-stacked text-xl"></i></span>
+                <div>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">0-to-1 Scaled Deliveries</h3>
+                    <p class="text-xs sm:text-sm text-gray-400 font-mono">End-to-end setups engineered, programmed, and hosted from early concept to massive scale</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- GyannE Platform Architecture (PW) -->
+                <div class="glass-card p-6 rounded-2xl glow-hover flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all"></div>
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-wider bg-emerald-950/50 px-2.5 py-1 rounded-md border border-emerald-500/20">Physics Wallah Platform</span>
+                                <h4 class="text-xl font-bold text-white mt-2">GyannE Platform Architecture</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-lg font-mono font-bold border border-emerald-500/20">0→1</div>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                            Architected, conceptualized, and delivered GyannE <strong class="text-white">from the absolute initial ideation stage to over 200,000 active student users</strong>. Formulated scalable shared libraries, modular Kotlin Multiplatform structures, Next.js components, and optimized content delivery networks.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 font-mono text-[10px] text-center pt-3 border-t border-gray-800/80">
+                        <div class="bg-gray-950/70 p-2 rounded text-emerald-400 border border-emerald-500/5">Ideation to 200K+</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-purple-400 border border-purple-500/5">KMP & Next.js</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-blue-400 border border-blue-500/5">Modular Core SDK</div>
+                    </div>
+                </div>
+
+                <!-- Zoomcar ZMS Mobile SDK -->
+                <div class="glass-card p-6 rounded-2xl glow-hover flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all"></div>
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <span class="text-[10px] font-mono text-purple-400 uppercase tracking-wider bg-purple-950/50 px-2.5 py-1 rounded-md border border-purple-500/20">Zoomcar Telematics</span>
+                                <h4 class="text-xl font-bold text-white mt-2">ZMS Driving Telematics Engine</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-lg font-mono font-bold border border-purple-500/20">0→1</div>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                            Designed and deployed a customized sensor-based trip-tracking, behavior scoring, and driver risk-vetting SDK <strong class="text-white">completely from scratch</strong>. Engineered real-time mathematical profiling filters executing entirely on-device to transform erratic accelerations, harsh braking vectors, and cornering telemetry into a digital safety score used for profiling risks and vetting insurance models.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 font-mono text-[10px] text-center pt-3 border-t border-gray-800/80">
+                        <div class="bg-gray-950/70 p-2 rounded text-purple-400 border border-purple-500/5">Behavior Scoring</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-emerald-400 border border-emerald-500/5">Risk Profiling</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-blue-400 border border-blue-500/5">User Vetting</div>
+                    </div>
+                </div>
+
+                <!-- SKJCORP Ad Delivery Ecosystem -->
+                <div class="glass-card p-6 rounded-2xl glow-hover flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all"></div>
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <span class="text-[10px] font-mono text-blue-400 uppercase tracking-wider bg-blue-950/50 px-2.5 py-1 rounded-md border border-blue-500/20">SKJCORP Engineering</span>
+                                <h4 class="text-xl font-bold text-white mt-2">High-Throughput Push Ad Network</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-lg font-mono font-bold border border-blue-500/20">0→1</div>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                            Architected, coded, and distributed a digital signage and visual content-syndication mechanism. Built optimized backend pipelines utilizing <strong class="text-white">Golang (Go)</strong> and <strong class="text-white">Python/Django</strong>, successfully processing up to <strong class="text-emerald-400">2,000+ Queries Per Second (QPS)</strong> with a tight processing latency target of less than 40ms.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 font-mono text-[10px] text-center pt-3 border-t border-gray-800/80">
+                        <div class="bg-gray-950/70 p-2 rounded text-blue-400 border border-blue-500/5">Go & Python API</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-emerald-400 border border-emerald-500/5">2000+ QPS Scope</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-purple-400 border border-purple-500/5">Low-Latency Stack</div>
+                    </div>
+                </div>
+
+                <!-- JEE Prep Ecosystem -->
+                <div class="glass-card p-6 rounded-2xl glow-hover flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-12 -top-12 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all"></div>
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <span class="text-[10px] font-mono text-amber-400 uppercase tracking-wider bg-amber-950/50 px-2.5 py-1 rounded-md border border-amber-500/20">Independent Product</span>
+                                <h4 class="text-xl font-bold text-white mt-2">JEE Mains Exam Preparation Platform</h4>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 text-lg font-mono font-bold border border-amber-500/20">0→1</div>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                            Bootstrapped, built, and monetized an educational application ecosystem. Managed visual layouts, local background data synchronization, and database query pathways, scaling organic user distribution to <strong class="text-white">over 200,000 installations</strong> with 35,000+ Monthly Active Users (MAU).
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 font-mono text-[10px] text-center pt-3 border-t border-gray-800/80">
+                        <div class="bg-gray-950/70 p-2 rounded text-amber-400 border border-amber-500/5">200K+ Downloads</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-emerald-400 border border-emerald-500/5">35K+ Active MAU</div>
+                        <div class="bg-gray-950/70 p-2 rounded text-purple-400 border border-purple-500/5">Offline Sync Cache</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Professional Tech Stack Matrix -->
+        <section class="space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20"><i class="fa-solid fa-code-fork"></i></span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Advanced Technical Matrix</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Column 1: Mobile & Frontend -->
+                <div class="glass-card p-5 rounded-2xl hover:border-emerald-500/20 transition-all duration-300">
+                    <h4 class="text-emerald-400 font-mono text-sm font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-display"></i> Frontend & Mobile
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center justify-between">Kotlin Multiplatform <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Expert</span></li>
+                        <li class="flex items-center justify-between">Next.js & React <span class="text-xs bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Expert</span></li>
+                        <li class="flex items-center justify-between">Native Kotlin (Android) <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">9 Yrs</span></li>
+                        <li class="flex items-center justify-between">Jetpack Compose <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Core</span></li>
+                    </ul>
+                </div>
+
+                <!-- Column 2: Backend & Infrastructure -->
+                <div class="glass-card p-5 rounded-2xl hover:border-emerald-500/20 transition-all duration-300">
+                    <h4 class="text-blue-400 font-mono text-sm font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-server"></i> Backend & Scaling
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center justify-between font-bold text-white">Go (Golang) <span class="text-xs bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Expert</span></li>
+                        <li class="flex items-center justify-between">Python & Django <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">2000 QPS</span></li>
+                        <li class="flex items-center justify-between">Docker & AWS <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Production</span></li>
+                        <li class="flex items-center justify-between">SQL & Node.js <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Advanced</span></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: AI, LLMOps & Automation -->
+                <div class="glass-card p-5 rounded-2xl hover:border-purple-500/20 transition-all duration-300">
+                    <h4 class="text-purple-400 font-mono text-sm font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-robot"></i> AI & Agentic Ops
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center justify-between">Multi-Agent Pipelines <span class="text-xs bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded font-mono">Deployed</span></li>
+                        <li class="flex items-center justify-between font-mono">LLMOps Token Cache <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400">Optimized</span></li>
+                        <li class="flex items-center justify-between">Automated QA Review <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Deployed</span></li>
+                        <li class="flex items-center justify-between">Cursor, Lovable, Gemini <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Daily</span></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: System Design & Architecture -->
+                <div class="glass-card p-5 rounded-2xl hover:border-emerald-500/20 transition-all duration-300">
+                    <h4 class="text-teal-400 font-mono text-sm font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap"></i> System Architecture
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center justify-between">Zero-to-One Platforming <span class="text-xs bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Core</span></li>
+                        <li class="flex items-center justify-between">Clean & SOLID Principles <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Expert</span></li>
+                        <li class="flex items-center justify-between">Modular SDK Patterns <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Expert</span></li>
+                        <li class="flex items-center justify-between">CI/CD & GitHub Actions <span class="text-xs bg-gray-900 px-1.5 py-0.5 rounded text-gray-400 font-mono">Advanced</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Work Experience Timeline -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left: Career Timeline -->
+            <div class="lg:col-span-8 space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-briefcase"></i></span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Chronological Career Path</h3>
+                </div>
+
+                <div class="relative border-l border-gray-800 pl-6 space-y-10 ml-4 pt-2">
+                    
+                    <!-- Physics Wallah -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-cyber-dark border-2 border-emerald-500 w-4 h-4 rounded-full"></span>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <h4 class="text-xl font-bold text-white">Senior Staff Engineer, Full Stack Developer & Engineering Manager</h4>
+                            <span class="px-2.5 py-1 rounded bg-gray-900 text-xs font-mono text-emerald-400 border border-emerald-500/20">Feb 2023 - Present</span>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-400 mb-3 font-mono">Physics Wallah | Noida, NCR</p>
+                        <ul class="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                            <li><span class="font-semibold text-white">Scale Architecture:</span> Handled massive consumer workloads on core products supporting over <span class="text-emerald-400 font-semibold">4 Million Daily Active Users (DAU)</span>.</li>
+                            <li><span class="font-semibold text-white">0-to-1 GyannE Platform:</span> Designed, architected, and coded PW's internal specialized learning suite from conceptualization up to <span class="text-emerald-400">200K+ active users</span>.</li>
+                            <li><span class="font-semibold text-white">Kotlin Multiplatform (KMP) & Next.js:</span> Authored basic shared dependencies, full-stack Next.js web applications, and player configurations to share capabilities seamlessly across platforms.</li>
+                            <li><span class="font-semibold text-white">Agentic Developer Operations:</span> Programmed autonomous code verification systems and bot agents to triage issues and evaluate code pull requests against guidelines.</li>
+                            <li><span class="font-semibold text-white">Platform Performance:</span> Trimmed Application Not Responding (ANR) events by 46% (down to 0.35%) and decreased memory crash values by 55%.</li>
+                            <li>Slashed application distribution footprints from 130MB to 45MB while bringing down P95 cold start delay by 50% (6 seconds to 3 seconds).</li>
+                            <li>Mentored and guided a team of 7 engineers, enforcing SOLID principles and rolling out streamlined deploy pipelines.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Zoomcar -->
+                    <div class="relative bg-emerald-950/10 border border-emerald-500/10 p-5 rounded-2xl">
+                        <span class="absolute -left-[31px] top-6 bg-cyber-dark border-2 border-emerald-500 w-4 h-4 rounded-full"></span>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <h4 class="text-xl font-bold text-emerald-300">Senior Full Stack Developer (Android & Telematics)</h4>
+                            <span class="px-2.5 py-1 rounded bg-emerald-950 text-xs font-mono text-emerald-400 border border-emerald-500/30">Dec 2021 - Feb 2023</span>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-400 mb-3 font-mono">Zoomcar | Bengaluru (Remote)</p>
+                        <div class="bg-emerald-500/10 text-emerald-400 px-3.5 py-2.5 rounded-lg text-xs font-mono mb-3 border border-emerald-500/20">
+                            <i class="fa-solid fa-star"></i> <strong class="text-white">Core 0-to-1 Impact:</strong> Built the sensor-based driving trip tracking, mathematical scoring, behavior profiling, and risk-vetting engine (ZMS SDK) entirely from scratch.
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                            <li><span class="font-semibold text-white">Dynamic Scoring Models:</span> Formulated real-time mathematical filtering algorithms executing entirely on-device to score driving patterns based on accelerometer variables.</li>
+                            <li><span class="font-semibold text-white">Driver Profiling & Risk Vetting:</span> Developed analytical profiling pipelines evaluating high-risk maneuvers to vet users, directly integrated into B2B insurance pricing layers.</li>
+                            <li>Modernized the primary platform code up to Android API 33 with complete Proguard code obfuscation guidelines.</li>
+                            <li>Pruned modular features to shrink native application footprint by 30%.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Krishi Network -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-cyber-dark border-2 border-emerald-500 w-4 h-4 rounded-full"></span>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <h4 class="text-xl font-bold text-white">Android Technical Lead</h4>
+                            <span class="px-2.5 py-1 rounded bg-gray-900 text-xs font-mono text-emerald-400 border border-emerald-500/20">June 2021 - Dec 2021</span>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-400 mb-3 font-mono">Krishi Network | Gurugram</p>
+                        <ul class="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                            <li>Executed architectural overhaul and interface upgrades to stabilize media rendering and asset caching during spikes in user activity.</li>
+                            <li>Successfully reduced application distribution size by 35% (down from 21MB to 13MB).</li>
+                        </ul>
+                    </div>
+
+                    <!-- SKJCORP -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-cyber-dark border-2 border-emerald-500 w-4 h-4 rounded-full"></span>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <h4 class="text-xl font-bold text-white">Founder & Chief Executive Officer</h4>
+                            <span class="px-2.5 py-1 rounded bg-gray-900 text-xs font-mono text-emerald-400 border border-emerald-500/20">May 2019 - June 2021</span>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-400 mb-3 font-mono">SKJCORP | New Delhi</p>
+                        <ul class="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                            <li>Coded backend pathways handling up to <span class="text-emerald-400 font-semibold">2000 QPS</span> within a strict 40ms target latency constraint using Golang and Python.</li>
+                            <li>Guided client design requests, establishing content syndication layers and digital displays.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Robert Bosch -->
+                    <div class="relative">
+                        <span class="absolute -left-[31px] top-1.5 bg-cyber-dark border-2 border-emerald-500 w-4 h-4 rounded-full"></span>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <h4 class="text-xl font-bold text-white">Associate Software Engineer</h4>
+                            <span class="px-2.5 py-1 rounded bg-gray-900 text-xs font-mono text-emerald-400 border border-emerald-500/20">Aug 2018 - May 2019</span>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-400 mb-3 font-mono">Robert Bosch | Bengaluru</p>
+                        <ul class="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                            <li>Engineered embedded software solutions within the high-precision Automotive Systems division.</li>
+                            <li>Analyzed raw automotive sensor telemetry, developing safety-critical software control and data processing logic.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: AI Focus, Academics, Certifications -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- AI Specialization Panel -->
+                <div class="bg-gradient-to-br from-purple-950/20 to-cyber-card/80 border border-purple-500/20 p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-2 text-purple-400 font-mono text-sm font-semibold">
+                        <i class="fa-solid fa-microchip animate-pulse"></i> AI & Agentic Specialization
+                    </div>
+                    <h4 class="text-lg font-bold text-white">Autonomous Developer Workflows</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        Implementing advanced pipelines that automatically classify system logs, verify test conditions, and review code integrations against platform metrics.
+                    </p>
+                    
+                    <div class="space-y-3 pt-2">
+                        <div class="flex gap-3 items-start">
+                            <span class="text-purple-400 mt-1 text-xs"><i class="fa-solid fa-bolt-lightning"></i></span>
+                            <div>
+                                <h5 class="text-xs font-semibold text-white">Automated Issue Routing</h5>
+                                <p class="text-[11px] text-gray-400">Classifying raw crash outputs and routing context directly to targeted platform lines.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <span class="text-purple-400 mt-1 text-xs"><i class="fa-solid fa-code-pull-request"></i></span>
+                            <div>
+                                <h5 class="text-xs font-semibold text-white font-mono">Code Integrations Review</h5>
+                                <p class="text-[11px] text-gray-400">Deploying LLMs as background checkers validating code pull requests prior to build testing.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <span class="text-purple-400 mt-1 text-xs"><i class="fa-solid fa-database"></i></span>
+                            <div>
+                                <h5 class="text-xs font-semibold text-white font-mono">LLM Token Optimizations</h5>
+                                <p class="text-[11px] text-gray-400">Optimizing system queries and prompt caches to limit operational and token compute costs.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Panel -->
+                <div class="glass-card p-6 rounded-2xl space-y-4">
+                    <h4 class="text-white font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i class="fa-solid fa-graduation-cap text-emerald-400"></i> Education
+                    </h4>
+                    <div class="space-y-3 text-xs">
+                        <div class="border-l-2 border-emerald-500 pl-3">
+                            <p class="font-bold text-white">B.Tech (Information Technology)</p>
+                            <p class="text-gray-400">MAIT, Delhi | 2014 - 2018</p>
+                            <p class="text-emerald-400 font-mono mt-0.5">Result: 78.69% CPI</p>
+                        </div>
+                        <div class="border-l-2 border-gray-800 pl-3">
+                            <p class="font-bold text-white">Senior Secondary School (PCM)</p>
+                            <p class="text-gray-400">CBSE Board | 2012 - 2014</p>
+                            <p class="text-emerald-400 font-mono mt-0.5">Result: 92.33%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges and Certified Accomplishments -->
+                <div class="glass-card p-6 rounded-2xl space-y-4">
+                    <h4 class="text-white font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i class="fa-solid fa-award text-amber-400"></i> Certifications & Credentials
+                    </h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center gap-3 bg-gray-950/40 p-3 rounded-lg border border-gray-800/80">
+                            <i class="fa-brands fa-google text-blue-400 text-lg"></i>
+                            <div>
+                                <p class="font-bold text-white">Associate Android Developer</p>
+                                <p class="text-[10px] text-gray-500">Google Certified Professional</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-gray-950/40 p-3 rounded-lg border border-gray-800/80">
+                            <i class="fa-solid fa-fire text-orange-400 text-lg"></i>
+                            <div>
+                                <p class="font-bold text-white">JEE Prep Ecosystem Creator</p>
+                                <p class="text-[10px] text-gray-500">200K+ organic downloads</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-900 bg-gray-950/90 py-12 px-4 text-center mt-20 relative z-10 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto space-y-6">
+            <p class="text-sm text-gray-400 font-mono">
+                &copy; 2026 Rahul Jindal. Designed with a custom full-screen Three.js architecture constellation & responsive layout constraints.
+            </p>
+            <div class="flex items-center justify-center gap-6">
+                <a href="mailto:rahuljindal121@gmail.com" class="text-gray-400 hover:text-emerald-400 text-xl transition">
+                    <i class="fa-solid fa-envelope"></i>
+                </a>
+                <a href="tel:+919212696418" class="text-gray-400 hover:text-emerald-400 text-xl transition">
+                    <i class="fa-solid fa-phone"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // THREE.JS Global Constellation Nodes Network setup
+        let scene, camera, renderer, nodesGroup, ambientPoints;
+        const canvas = document.getElementById('globalThreeCanvas');
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+
+        // Trace and record movement to rotate the background constellation subtly
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) / 100;
+            mouseY = (e.clientY - window.innerHeight / 2) / 100;
+        });
+
+        // Initialize ThreeJS Landscape Background
+        function initThreeBackground() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x030712, 0.015);
+
+            camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+            camera.position.z = 25;
+
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            nodesGroup = new THREE.Group();
+            scene.add(nodesGroup);
+
+            // Generate architectural nodes representing products, services, servers
+            const nodesCount = 45;
+            const nodeGeom = new THREE.SphereGeometry(0.2, 8, 8);
+            const nodeMaterials = [
+                new THREE.MeshBasicMaterial({ color: 0x10B981, transparent: true, opacity: 0.8 }), // Emerald Node
+                new THREE.MeshBasicMaterial({ color: 0x8B5CF6, transparent: true, opacity: 0.8 }), // Purple Node
+                new THREE.MeshBasicMaterial({ color: 0x3B82F6, transparent: true, opacity: 0.8 })  // Blue Node
+            ];
+
+            const positions = [];
+            const meshes = [];
+
+            for (let i = 0; i < nodesCount; i++) {
+                const mesh = new THREE.Mesh(nodeGeom, nodeMaterials[i % nodeMaterials.length]);
+                const x = (Math.random() - 0.5) * 45;
+                const y = (Math.random() - 0.5) * 45;
+                const z = (Math.random() - 0.5) * 30 - 5;
+                
+                mesh.position.set(x, y, z);
+                nodesGroup.add(mesh);
+                meshes.push(mesh);
+                positions.push(mesh.position);
+            }
+
+            // Create connections (lines) between adjacent nodes
+            const lineMat = new THREE.LineBasicMaterial({
+                color: 0x4b5563,
+                transparent: true,
+                opacity: 0.25
+            });
+
+            // Find close pairs and connect them with lines
+            const linePositions = [];
+            for (let i = 0; i < positions.length; i++) {
+                let connectionsCount = 0;
+                for (let j = i + 1; j < positions.length; j++) {
+                    const distance = positions[i].distanceTo(positions[j]);
+                    if (distance < 12 && connectionsCount < 3) {
+                        linePositions.push(positions[i].clone());
+                        linePositions.push(positions[j].clone());
+                        connectionsCount++;
+                    }
+                }
+            }
+
+            const lineGeom = new THREE.BufferGeometry().setFromPoints(linePositions);
+            const networkLines = new THREE.LineSegments(lineGeom, lineMat);
+            nodesGroup.add(networkLines);
+
+            // Generate ambient fine particle starfield
+            const starGeom = new THREE.BufferGeometry();
+            const starsCount = 200;
+            const starPositions = new Float32Array(starsCount * 3);
+
+            for(let i = 0; i < starsCount * 3; i++) {
+                starPositions[i] = (Math.random() - 0.5) * 80;
+            }
+
+            starGeom.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+            const starMat = new THREE.PointsMaterial({
+                color: 0x10B981,
+                size: 0.08,
+                transparent: true,
+                opacity: 0.4
+            });
+
+            ambientPoints = new THREE.Points(starGeom, starMat);
+            scene.add(ambientPoints);
+
+            // Setup scrolling interactions: pan camera down as user scrolls page
+            window.addEventListener('scroll', handleScrollInteraction);
+
+            animateThreeBackground();
+        }
+
+        // Camera shifts dynamically based on scroll distance for depth parallax
+        function handleScrollInteraction() {
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            // Move camera down and rotate slightly relative to scroll progress
+            camera.position.y = -scrollPercent * 15;
+            camera.position.z = 25 - (scrollPercent * 5);
+        }
+
+        // ThreeJS Background Loop
+        function animateThreeBackground() {
+            requestAnimationFrame(animateThreeBackground);
+
+            // Smoothed interpolation of mouse vector coordinates for sluggish delay
+            targetX += (mouseX - targetX) * 0.05;
+            targetY += (mouseY - targetY) * 0.05;
+
+            // Constrained node rotating shift
+            nodesGroup.rotation.y = targetX * 0.3;
+            nodesGroup.rotation.x = -targetY * 0.3;
+
+            // Ambient background swirl animation
+            nodesGroup.rotation.y += 0.0006;
+            ambientPoints.rotation.y -= 0.0002;
+
+            renderer.render(scene, camera);
+        }
+
+        // Resize callback keeping aspects proportional
+        window.addEventListener('resize', () => {
+            if (!renderer || !camera) return;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(width, height);
+        });
+
+        // Initialize canvas context elements on complete load
+        window.onload = function() {
+            initThreeBackground();
+        };
+
+        // Standard Copy contact metrics action
+        function copyContact() {
+            const copyValue = "Rahul Jindal | rahuljindal121@gmail.com | +91 9212696418";
+            const hiddenEl = document.createElement("input");
+            hiddenEl.value = copyValue;
+            document.body.appendChild(hiddenEl);
+            hiddenEl.select();
+            document.execCommand("copy");
+            document.body.removeChild(hiddenEl);
+
+            showToast("Copied to clipboard: rahuljindal121@gmail.com");
+        }
+
+        // Simple customized feedback toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastMessage.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
